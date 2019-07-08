@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/18F/analytics-reporter.png)](https://travis-ci.org/18F/analytics-reporter)  [![Dependency Status](https://gemnasium.com/badges/github.com/18F/analytics-reporter.svg)](https://gemnasium.com/github.com/18F/analytics-reporter)
+ [![Code Climate](https://codeclimate.com/github/18F/analytics-reporter/badges/gpa.svg)](https://codeclimate.com/github/18F/analytics-reporter) [![CircleCI](https://circleci.com/gh/18F/analytics.usa.gov.svg?style=shield)](https://circleci.com/gh/18F/analytics.usa.gov)  [![Dependency Status](https://gemnasium.com/badges/github.com/18F/analytics-reporter.svg)](https://gemnasium.com/github.com/18F/analytics-reporter)
 
 ## Analytics Reporter
 
@@ -8,7 +8,34 @@ This is used in combination with [18F/analytics.usa.gov](https://github.com/18F/
 
 Available reports are named and described in [`reports.json`](reports/reports.json). For now, they're hardcoded into the repository.
 
-### Setup
+
+### Installation
+
+### Docker
+
+* To build the docker image on your computer, run:
+
+````bash
+export NODE_ENV=development # just needed when developing against the image
+export NODE_ENV=production # to build an image for production
+docker build --build-arg NODE_ENV=${NODE_ENV} -t analytics-reporter .
+````
+
+Then you can create an alias in order to have the analytics command available:
+
+```bash
+alias analytics="docker run -t -v ${HOME}:${HOME} -e ANALYTICS_REPORT_EMAIL -e ANALYTICS_REPORT_IDS -e ANALYTICS_KEY analytics-reporter"
+```
+
+To make this command working as expected you should export the env vars as follows:
+
+```bash
+export ANALYTICS_REPORT_EMAIL=  "your-report-email"
+export ANALYTICS_REPORT_IDS="your-report-ids"
+export ANALYTICS_KEY="your-key"
+```
+
+### NPM
 
 * To run the utility on your computer, install it through npm:
 
@@ -17,6 +44,8 @@ npm install -g analytics-reporter
 ```
 
 If you're developing locally inside the repo, `npm install` is sufficient.
+
+### Setup
 
 * Create an API service account in the [Google developer dashboard](https://console.developers.google.com/apis/).
 
@@ -104,6 +133,13 @@ export AWS_BUCKET=[your-bucket]
 export AWS_BUCKET_PATH=[your-path]
 export AWS_CACHE_TIME=0
 ```
+
+There are cases where you want to use a custom  object storage server compatible with Amazon S3 APIs, like [minio](https://github.com/minio/minio), in that specific case you should set an extra env variable:
+
+```
+export AWS_S3_ENDPOINT=http://your-storage-server:port
+```
+
 
 ### Other configuration
 
@@ -195,6 +231,8 @@ A report might look something like this:
 analytics --output /path/to/data
 ```
 
+*Note that when using the docker image you have to use the absolute path, for example "/home/youruser/path/to/data"*
+
 * `--publish` - Publish to an S3 bucket. Requires AWS environment variables set as described above.
 
 ```bash
@@ -282,6 +320,30 @@ Restage the application to use the environment variables.
 
 ```shell
 cf restage analytics-reporter
+```
+
+### Developing with Docker
+
+This repo contains a [Docker Compose](https://docs.docker.com/compose/)
+configuration. The reporter is configured to run in the container as if it were
+running in GovCloud. This is helpful for seeing how the reporter will behave
+when deployed without pushing it to cloud.gov.
+
+To start the reporter, first run the `docker-update` script to install the
+necessary dependencies:
+
+```shell
+./bin/docker-update
+```
+
+Note that this script will need to be run again when new dependencies are added
+to update the Docker volumes where the dependencies are stored.
+
+After the dependencies are installed, the reporter can be started using Docker
+Compose:
+
+```shell
+docker-compose up
 ```
 
 ### Public domain

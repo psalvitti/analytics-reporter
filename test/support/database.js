@@ -3,22 +3,14 @@ const { ANALYTICS_DATA_TABLE_NAME } = require("../../src/publish/postgres")
 const knex = require("knex")
 
 const connection = {
-  host: "localhost",
-  database: process.env.TRAVIS ? "travis_ci_test" : "analytics_reporter_test",
+  host: process.env.PG_HOST ? process.env.PG_HOST : "localhost",
+  database: "analytics_reporter_test",
+  user : process.env.PG_USER ? process.env.PG_USER : 'postgres'
 }
 
 const resetSchema = () => {
   const db = knex({ client: "pg", connection })
-  return db.schema.dropTableIfExists(ANALYTICS_DATA_TABLE_NAME).then(() => {
-    return db.schema.createTable(ANALYTICS_DATA_TABLE_NAME, (table) => {
-      table.increments("id")
-      table.string("report_name")
-      table.string("report_agency")
-      table.dateTime("date_time")
-      table.jsonb("data")
-      table.timestamps(true, true)
-    })
-  })
+  return db("analytics_data").delete()
 }
 
 module.exports = { connection, resetSchema }

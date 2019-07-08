@@ -5,7 +5,7 @@ applications:
   disk_quota: 1024M
   no-route: true
   health-check-type: process
-  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+  buildpack: nodejs_buildpack
   command: node deploy/cron.js
   # These are examples. These variables are set via `cg-toolkit/generate-env.sh`
   # using the `.env` file referenced in README.md.
@@ -26,6 +26,6 @@ applications:
   - analytics-s3
   - analytics-env
   - analytics-reporter-database
-  stack: cflinuxfs2
+  stack: cflinuxfs3
   timeout: 180
   path: .
